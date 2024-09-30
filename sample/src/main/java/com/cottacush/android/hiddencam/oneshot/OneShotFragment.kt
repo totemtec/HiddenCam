@@ -15,6 +15,7 @@
  */
 package com.cottacush.android.hiddencam.oneshot
 
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.util.Size
@@ -67,8 +68,8 @@ class OneShotFragment : Fragment(), OnImageCapturedListener {
         hiddenCam.start()
     }
 
-    override fun onImageCaptured(image: File) {
-        val message = "Image captured, saved to:${image.absolutePath}"
+    override fun onImageCaptured(imageUri: Uri?) {
+        val message = "Image captured, saved to:${imageUri.toString()}"
         log(message)
         showToast(message)
     }

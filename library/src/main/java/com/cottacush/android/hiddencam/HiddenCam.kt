@@ -30,7 +30,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class HiddenCam @JvmOverloads constructor(
-    context: Context,
+    private val context: Context,
     private val baseFileDirectory: File,
     private val imageCapturedListener: OnImageCapturedListener,
     private val captureFrequency: CaptureTimeFrequency = OneShot,
@@ -41,8 +41,6 @@ class HiddenCam @JvmOverloads constructor(
 ) {
     private lateinit var captureTimer: CaptureTimerHandler
     private val lifeCycleOwner = HiddenCamLifeCycleOwner()
-
-    private lateinit var mContext: Context
 
 
     /**
@@ -82,7 +80,6 @@ class HiddenCam @JvmOverloads constructor(
      * throws SecurityException if the required permissions aren't available.
      */
     init {
-        mContext = context;
         if (context.hasPermissions()) {
 
             val previewBuilder = Preview.Builder()
@@ -190,12 +187,12 @@ class HiddenCam @JvmOverloads constructor(
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, name)
             put(MediaStore.MediaColumns.MIME_TYPE, PHOTO_TYPE)
-            val appName = mContext.resources.getString(R.string.app_name)
+            val appName = context.resources.getString(R.string.app_name)
             put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/${appName}")
         }
 
         val outputOptions = ImageCapture.OutputFileOptions
-            .Builder(mContext.contentResolver,
+            .Builder(context.contentResolver,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 contentValues)
             .build()
@@ -204,11 +201,13 @@ class HiddenCam @JvmOverloads constructor(
             outputOptions, MainThreadExecutor, object : ImageCapture.OnImageSavedCallback {
                 override fun onError(exc: ImageCaptureException) {
                     Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
+                    imageCapturedListener.onImageCaptureError(exc)
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val savedUri = output.savedUri
                     Log.d(TAG, "Photo capture succeeded: $savedUri")
+                    imageCapturedListener.onImageCaptured(savedUri)
                 }
             })
 
