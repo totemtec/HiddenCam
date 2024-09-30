@@ -16,78 +16,82 @@
 package com.cottacush.android.hiddencam
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.cottacush.android.R
-import kotlinx.android.synthetic.main.fragment_landing_page.*
+import com.cottacush.android.databinding.FragmentLandingPageBinding
 
 class LandingPageFragment : Fragment() {
 
-    private val mainActivity: MainActivity
-        get() {
-            return activity as? MainActivity ?: throw IllegalStateException("Not attached!")
-        }
+    private var _binding: FragmentLandingPageBinding? = null
+    private val binding get() = _binding!!
 
-    private val requiredPermissions =
+    private val PERMISSIONS =
         arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_landing_page, container, false)
+    ): View {
+        _binding = FragmentLandingPageBinding.inflate(inflater, container, false)
+        val view = binding.root
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mainActivity.setUpToolBar("Welcome", true)
-        if (checkPermissions()) onPermissionsGranted()
-        recurringButton.setOnClickListener {
+        if (hasPermissions()) {
+            binding.recurringButton.isEnabled = true
+            binding.oneShotButton.isEnabled = true
+        }
+
+        binding.recurringButton.setOnClickListener {
             it.findNavController().navigate(R.id.recurringFragment)
         }
 
-        oneShotButton.setOnClickListener {
+        binding.oneShotButton.setOnClickListener {
             it.findNavController().navigate(R.id.oneShotFragment)
         }
     }
 
-    fun onPermissionsGranted() {
-        Log.d("Landing", "permission granted")
-        recurringButton.isEnabled = true
-        oneShotButton.isEnabled = true
-    }
-
-    private fun checkPermissions(): Boolean {
-        return if (mainActivity.hasPermissions(requiredPermissions)) true
-        else {
-            requestPermissions(requiredPermissions, CAMERA_AND_STORAGE_PERMISSION_REQUEST_CODE)
-            false
+    private fun hasPermissions(): Boolean {
+        if (hasPermissions(requireContext(), PERMISSIONS)) {
+            return true
+        } else {
+            requestPermission.launch(PERMISSIONS)
+            return false;
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        Log.d("Landing", "Permsion result called")
-        if (requestCode == CAMERA_AND_STORAGE_PERMISSION_REQUEST_CODE &&
-            confirmPermissionResults(grantResults)
-        ) onPermissionsGranted()
-    }
-
-    private fun confirmPermissionResults(results: IntArray): Boolean {
-        results.forEach {
-            if (it != PackageManager.PERMISSION_GRANTED) return false
+    private val requestPermission =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val granted = permissions.entries.isNotEmpty() && permissions.entries.all {
+                it.value
+            }
+            if (granted) {
+                binding.recurringButton.isEnabled = true
+                binding.oneShotButton.isEnabled = true
+            }
         }
-        return true
+
+    private fun hasPermissions(context: Context, permissions: Array<String>): Boolean =
+        permissions.all {
+            ActivityCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+        }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {

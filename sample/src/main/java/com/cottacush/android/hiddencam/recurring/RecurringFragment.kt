@@ -23,20 +23,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.cottacush.android.R
+import com.cottacush.android.databinding.FragmentRecurringBinding
 import com.cottacush.android.hiddencam.CaptureTimeFrequency
 import com.cottacush.android.hiddencam.HiddenCam
-import com.cottacush.android.hiddencam.MainActivity
 import com.cottacush.android.hiddencam.OnImageCapturedListener
-import kotlinx.android.synthetic.main.fragment_recurring.*
 import java.io.File
 
 class RecurringFragment : Fragment(), OnImageCapturedListener {
 
-    private val mainActivity: MainActivity
-        get() {
-            return activity as? MainActivity ?: throw IllegalStateException("Not attached!")
-        }
+    private var _binding: FragmentRecurringBinding? = null
+    private val binding get() = _binding!!
 
     private lateinit var hiddenCam: HiddenCam
     private lateinit var baseStorageFolder: File
@@ -45,24 +41,28 @@ class RecurringFragment : Fragment(), OnImageCapturedListener {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_recurring, container, false)
+    ): View {
+        _binding = FragmentRecurringBinding.inflate(inflater, container, false)
+        val view = binding.root
+        return view
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mainActivity.setUpToolBar(getString(R.string.recurring))
-        baseStorageFolder = File(mainActivity.getExternalFilesDir(null), "HiddenCam").apply {
+        baseStorageFolder = File(requireContext().getExternalFilesDir(null), "HiddenCam").apply {
             if (exists()) deleteRecursively()
             mkdir()
         }
         hiddenCam = HiddenCam(
-            mainActivity, baseStorageFolder, this,
+            requireContext(), baseStorageFolder, this,
             CaptureTimeFrequency.Recurring(RECURRING_INTERVAL),
             targetResolution = Size(1080, 1920)
         )
-        startCaptureButton.setOnClickListener {
+
+        binding.startCaptureButton.setOnClickListener {
             hiddenCam.start()
         }
-        stopCaptureButton.setOnClickListener {
+        binding.stopCaptureButton.setOnClickListener {
             hiddenCam.stop()
         }
     }
@@ -83,7 +83,7 @@ class RecurringFragment : Fragment(), OnImageCapturedListener {
     }
 
     private fun showToast(message: String) {
-        Toast.makeText(mainActivity, message, Toast.LENGTH_LONG).show()
+        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
     }
 
     private fun log(message: String) {
@@ -93,6 +93,7 @@ class RecurringFragment : Fragment(), OnImageCapturedListener {
     override fun onDestroyView() {
         super.onDestroyView()
         hiddenCam.destroy()
+        _binding = null
     }
 
     companion object {

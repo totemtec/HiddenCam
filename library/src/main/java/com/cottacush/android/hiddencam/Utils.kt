@@ -21,7 +21,7 @@ import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
 import androidx.camera.core.AspectRatio
-import androidx.camera.core.CameraX
+import androidx.camera.core.CameraSelector
 import androidx.core.content.ContextCompat
 import java.io.File
 import java.text.SimpleDateFormat
@@ -41,18 +41,18 @@ private val requiredPermissions =
 /** A [CameraType] specifies the direction the camera that will be used for taking image is facing.
  *  [FRONT_CAMERA] or [BACK_CAMERA]
  *  @param lensFacing specifies the direction of the lens of the camera*/
-enum class CameraType(val lensFacing: CameraX.LensFacing) {
+enum class CameraType(val lensFacing: Int) {
 
     /** A camera on the device facing the same direction as the device's screen */
-    FRONT_CAMERA(CameraX.LensFacing.FRONT),
+    FRONT_CAMERA(CameraSelector.LENS_FACING_FRONT),
 
     /** A camera on the device facing the opposite direction as the device's screen */
-    BACK_CAMERA(CameraX.LensFacing.BACK)
+    BACK_CAMERA(CameraSelector.LENS_FACING_BACK)
 }
 
 /** [TargetAspectRatio] specifies the AspectRatio for the captured images. See [RATIO_4_3] and
  *  [RATIO_16_9] */
-enum class TargetAspectRatio(val aspectRatio: AspectRatio) {
+enum class TargetAspectRatio(val aspectRatio: Int) {
 
     /** 4:3 standard aspect ratio.  */
     RATIO_4_3(AspectRatio.RATIO_4_3),

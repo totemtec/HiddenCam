@@ -1,37 +1,56 @@
-apply from: '../dependencies.gradle'
-
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+}
 
 android {
-    compileSdkVersion versions.compileSdk
-    buildToolsVersion versions.buildTools
-
-    compileOptions {
-        sourceCompatibility 1.8
-        targetCompatibility 1.8
-    }
+    namespace 'com.cottacush.android'
+    compileSdk 34
 
     defaultConfig {
-        applicationId "com.cottacush.android.hiddencamera"
-        minSdkVersion versions.minSdk
-        targetSdkVersion versions.compileSdk
-        versionCode versions.publishVersionCode
-        versionName versions.publishVersion
+        applicationId "com.cottacush.android"
+        minSdk 30
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        vectorDrawables {
+            useSupportLibrary true
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    buildFeatures {
+        viewBinding true
     }
 }
 
 dependencies {
-    implementation project(':library')
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:' + versions.kotlin
-    implementation 'androidx.core:core-ktx:' + versions.ktx
-    implementation 'androidx.appcompat:appcompat:' + versions.androidx
-    implementation 'com.android.support.constraint:constraint-layout:' + versions.constraintLayout
-    implementation 'com.google.android.material:material:' + versions.androidxMaterial
-    implementation 'android.arch.navigation:navigation-fragment-ktx:' + versions.navigation
-    implementation 'android.arch.navigation:navigation-ui-ktx:' + versions.navigation
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-}
 
-apply from: '../spotless.gradle'
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.lifecycle.runtime.ktx
+
+    implementation libs.androidx.appcompat
+    implementation libs.material
+    implementation libs.androidx.camerax
+    implementation libs.androidx.camera.lifecycle
+    implementation libs.androidx.camera.view
+    implementation libs.androidx.camera.camera2
+
+    implementation libs.androidx.navigation.fragment.ktx
+    implementation libs.androidx.navigation.ui.ktx
+
+    implementation project(':library')
+}

@@ -24,17 +24,21 @@ import androidx.lifecycle.LifecycleRegistry
  */
 internal class HiddenCamLifeCycleOwner : LifecycleOwner {
 
-    private val lifecycleRegistry: LifecycleRegistry = LifecycleRegistry(this)
+    override val lifecycle = LifecycleRegistry(this)
 
     init {
-        lifecycleRegistry.markState(Lifecycle.State.CREATED)
+        lifecycle.currentState = Lifecycle.State.CREATED
     }
 
-    fun start() = lifecycleRegistry.markState(Lifecycle.State.STARTED)
+    fun start() {
+        lifecycle.currentState = Lifecycle.State.STARTED
+    }
 
-    fun stop() = lifecycleRegistry.markState(Lifecycle.State.CREATED)
+    fun stop() {
+        lifecycle.currentState = Lifecycle.State.CREATED
+    }
 
-    fun tearDown() = lifecycleRegistry.markState(Lifecycle.State.DESTROYED)
-
-    override fun getLifecycle(): Lifecycle = lifecycleRegistry
+    fun tearDown() {
+        lifecycle.currentState = Lifecycle.State.DESTROYED
+    }
 }

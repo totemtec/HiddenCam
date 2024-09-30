@@ -23,17 +23,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.cottacush.android.R
-import com.cottacush.android.hiddencam.*
-import kotlinx.android.synthetic.main.fragment_oneshot.*
+import com.cottacush.android.databinding.FragmentOneshotBinding
+import com.cottacush.android.hiddencam.HiddenCam
+import com.cottacush.android.hiddencam.OnImageCapturedListener
 import java.io.File
 
 class OneShotFragment : Fragment(), OnImageCapturedListener {
 
-    private val mainActivity: MainActivity
-        get() {
-            return activity as? MainActivity ?: throw IllegalStateException("Not attached!")
-        }
+    private var _binding: FragmentOneshotBinding? = null
+    private val binding get() = _binding!!
 
     private lateinit var hiddenCam: HiddenCam
     private lateinit var baseStorageFolder: File
@@ -42,21 +40,24 @@ class OneShotFragment : Fragment(), OnImageCapturedListener {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_oneshot, container, false)
+    ): View {
+        _binding = FragmentOneshotBinding.inflate(inflater, container, false)
+        val view = binding.root
+        return view
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mainActivity.setUpToolBar(getString(R.string.one_shot))
-        baseStorageFolder = File(mainActivity.getExternalFilesDir(null), "HiddenCam").apply {
+        baseStorageFolder = File(requireContext().getExternalFilesDir(null), "HiddenCam").apply {
             if (exists()) deleteRecursively()
             mkdir()
         }
         hiddenCam = HiddenCam(
-            mainActivity, baseStorageFolder, this,
+            requireContext(), baseStorageFolder, this,
             targetResolution = Size(1080, 1920)
         )
 
-        captureButton.setOnClickListener {
+        binding.captureButton.setOnClickListener {
             hiddenCam.captureImage()
         }
     }
@@ -82,7 +83,7 @@ class OneShotFragment : Fragment(), OnImageCapturedListener {
     }
 
     private fun showToast(message: String) {
-        Toast.makeText(mainActivity, message, Toast.LENGTH_LONG).show()
+        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
     }
 
     private fun log(message: String) {
@@ -97,6 +98,7 @@ class OneShotFragment : Fragment(), OnImageCapturedListener {
     override fun onDestroyView() {
         super.onDestroyView()
         hiddenCam.destroy()
+        _binding = null
     }
 
     companion object {
