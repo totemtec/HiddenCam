@@ -3,7 +3,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/nav_graph"
-        app:startDestination="@id/landingPageFragment">
+        app:startDestination="@id/cameraFragment">
 
     <fragment
             tools:layout="@layout/fragment_landing_page"
@@ -27,4 +27,10 @@
             android:id="@+id/recurringFragment"
             android:name="com.cottacush.android.hiddencam.recurring.RecurringFragment"
             android:label="RecurringFragment" />
+
+    <fragment
+        tools:layout="@layout/fragment_camera"
+        android:id="@+id/cameraFragment"
+        android:name="com.cottacush.android.hiddencam.oneshot.CameraFragment"
+        android:label="CameraFragment" />
 </navigation>
