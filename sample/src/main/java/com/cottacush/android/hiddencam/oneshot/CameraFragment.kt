@@ -62,7 +62,6 @@ class CameraFragment : Fragment() {
 
     private lateinit var mediaStoreUtils: MediaStoreUtils
 
-    private var displayId: Int = -1
     private var lensFacing: Int = CameraSelector.LENS_FACING_FRONT
     private var preview: Preview? = null
     private var imageCapture: ImageCapture? = null
@@ -73,9 +72,6 @@ class CameraFragment : Fragment() {
     /** Blocking camera operations are performed using this executor */
     private lateinit var cameraExecutor: ExecutorService
 
-    override fun onResume() {
-        super.onResume()
-    }
 
     override fun onDestroyView() {
         _fragmentCameraBinding = null
@@ -107,9 +103,6 @@ class CameraFragment : Fragment() {
 
         // Wait for the views to be properly laid out
         fragmentCameraBinding.viewFinder.post {
-
-            // Keep track of the display in which this view is attached
-            displayId = fragmentCameraBinding.viewFinder.display.displayId
 
             // Build UI controls
             updateCameraUi()
@@ -177,7 +170,7 @@ class CameraFragment : Fragment() {
                     this, cameraSelector, preview, imageCapture)
 
             // Attach the viewfinder's surface provider to preview use case
-            preview?.setSurfaceProvider(fragmentCameraBinding.viewFinder.surfaceProvider)
+//            preview?.setSurfaceProvider(fragmentCameraBinding.viewFinder.surfaceProvider)
             observeCameraState(camera?.cameraInfo!!)
         } catch (exc: Exception) {
             Log.e(TAG, "Use case binding failed", exc)
